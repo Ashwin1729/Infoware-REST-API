@@ -5,15 +5,18 @@ const sequelize = require("./config/database");
 
 const Employee = require("./models/employeeModel");
 const Contact = require("./models/contactModel");
+const employeeRoutes = require("./routes/employeeRoutes");
 
 const server = express();
 dotenv.config();
 
 server.use(express.json());
 
-server.get("/", (req, res) => {
-  res.send("API is running successfuly");
-});
+// server.get("/", (req, res) => {
+//   res.send("API is running successfuly");
+// });
+
+server.use("/", employeeRoutes);
 
 Employee.hasMany(Contact, {
   onDelete: "CASCADE",
