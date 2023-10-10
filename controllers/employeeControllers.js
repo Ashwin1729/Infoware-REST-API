@@ -6,7 +6,7 @@ const createEmployee = async (req, res) => {
     const { name, contacts } = req.body;
     const newEmployee = await Employee.create({ name });
 
-    let createdEmployee;
+    let createdEmployee = { ...newEmployee.dataValues };
 
     if (contacts && contacts.length > 0) {
       const createdContacts = await Contact.bulkCreate(
@@ -29,7 +29,23 @@ const createEmployee = async (req, res) => {
   }
 };
 
-const listEmployees = async (req, res) => {};
+const listEmployees = async (req, res) => {
+  try {
+    const { page, limit } = req.query;
+    const offset = (page - 1) * limit;
+
+    const employees = await Employee.findAndCountAll({
+      offset,
+      limit: parseInt(limit),
+      include: [{ model: Contact }],
+    });
+
+    res.status(200).json(employees);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const updateEmployee = async (req, res) => {};
 
