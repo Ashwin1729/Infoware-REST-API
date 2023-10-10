@@ -31,7 +31,7 @@ const createEmployee = async (req, res) => {
 
 const listEmployees = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
     const employees = await Employee.findAndCountAll({
