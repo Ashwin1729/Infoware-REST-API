@@ -47,11 +47,86 @@ const listEmployees = async (req, res) => {
   }
 };
 
-const updateEmployee = async (req, res) => {};
+const updateEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, contacts = null } = req.body;
 
-const deleteEmployee = async (req, res) => {};
+    const employee = await Employee.findByPk(id);
 
-const getEmployee = async (req, res) => {};
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found!" });
+    }
+
+    employee.name = name;
+    await employee.save();
+
+    let updatedEmployee = { ...employee.dataValues };
+
+    if (contacts && contacts.length > 0) {
+      const response = await Contact.destroy({
+        where: {
+          employeeId: id,
+        },
+      });
+
+      const createdContacts = await Contact.bulkCreate(
+        contacts.map((contact) => ({
+          ...contact,
+          employeeId: id,
+        }))
+      );
+
+      updatedEmployee = {
+        ...employee.dataValues,
+        contacts: createdContacts,
+      };
+    }
+
+    res.status(201).json(updatedEmployee);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const deleteEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const employee = await Employee.findByPk(id);
+
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found!" });
+    }
+
+    await employee.destroy();
+
+    res.status(200).json({ message: "Employee deleted successfully!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const getEmployee = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const employee = await Employee.findByPk(id, {
+      include: [{ model: Contact }],
+    });
+
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found!" });
+    }
+
+    res.status(200).json(employee);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 module.exports = {
   createEmployee,

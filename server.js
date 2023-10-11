@@ -16,7 +16,7 @@ server.use(express.json());
 //   res.send("API is running successfuly");
 // });
 
-server.use("/", employeeRoutes);
+server.use("/employee", employeeRoutes);
 
 Employee.hasMany(Contact, {
   onDelete: "CASCADE",
